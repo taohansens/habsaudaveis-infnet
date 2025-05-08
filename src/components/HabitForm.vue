@@ -30,6 +30,8 @@
   </template>
   
   <script>
+  import { addHabit } from "@/services/api";
+  
   export default {
     data() {
       return {
@@ -41,11 +43,14 @@
         },
       };
     },
-    methods: {
-      addHabit() {
-        this.$emit("add-habit", this.newHabit);
+    async addHabit() {
+      try {
+        await addHabit(this.newHabit);
+        this.$emit("habit-added");
         this.newHabit = { name: "", category: "", goal: "", frequency: "" };
-      },
+      } catch (error) {
+        console.error("Erro ao adicionar hábito:", error);
+      }
     },
   };
   </script>
