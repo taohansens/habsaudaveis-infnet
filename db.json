@@ -1,13 +1,3 @@
 {
-    "habits": [
-      {
-        "id": 1,
-        "name": "Beber água",
-        "category": "Hidratação",
-        "goal": "2 litros de água por dia",
-        "frequency": "Diário",
-        "progress": 50,
-        "completed": false
-      }
-    ]
-  }
+  "habits": []
+}

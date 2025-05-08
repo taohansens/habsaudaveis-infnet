@@ -1,80 +1,60 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-</script>
-
 <template>
-  <header>
-    <div class="wrapper">
+  <div class="app-container">
+    <header>
       <nav>
-        <RouterLink to="/">Dashboard</RouterLink>
-        <RouterLink to="/settings">Configurações</RouterLink>
+        <ul>
+          <li><router-link to="/">Dashboard</router-link></li>
+          <li><router-link to="/settings">Configurações</router-link></li>
+        </ul>
       </nav>
-    </div>
-  </header>
+    </header>
 
-  <RouterView />
+    <main>
+      <router-view />
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Hábitos Saudáveis</p>
+    </footer>
+  </div>
 </template>
 
 <style scoped>
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 header {
-  line-height: 1.5;
-  max-height: 100vh;
+  background-color: #333;
+  padding: 1rem;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+header nav ul {
+  display: flex;
+  justify-content: space-around;
+  list-style-type: none;
+  padding: 0;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
+header nav ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+footer {
+  background-color: #333;
+  color: white;
   text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+  padding: 1rem;
 }
 </style>

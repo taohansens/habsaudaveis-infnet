@@ -1,26 +1,36 @@
 <template>
-    <div>
-      <h1>Detalhes do Hábito</h1>
+    <div v-if="habit">
+      <h2>Detalhes do Hábito</h2>
       <p>Nome: {{ habit.name }}</p>
       <p>Categoria: {{ habit.category }}</p>
       <p>Meta: {{ habit.goal }}</p>
       <p>Frequência: {{ habit.frequency }}</p>
     </div>
+    <div v-else>
+      <p>Hábito não encontrado.</p>
+    </div>
   </template>
   
   <script>
-  import { getHabits } from "@/services/api";
+  import { useHabitsStore } from "@/stores/habits";
+  import { storeToRefs } from "pinia";
+  import { onMounted, computed } from "vue";
+  import { useRoute } from "vue-router";
   
   export default {
-    data() {
+    setup() {
+      const habitsStore = useHabitsStore();
+      const route = useRoute();
+  
+      const habit = computed(() => habitsStore.habitById(route.params.id));
+  
+      onMounted(() => {
+        habitsStore.fetchHabits();
+      });
+  
       return {
-        habit: null,
+        habit,
       };
-    },
-    async created() {
-      const id = this.$route.params.id;
-      const response = await getHabits();
-      this.habit = response.data.find((h) => h.id == id);
     },
   };
   </script>

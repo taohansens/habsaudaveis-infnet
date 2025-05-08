@@ -30,7 +30,7 @@
   </template>
   
   <script>
-  import { useHabitsStore } from "@/store/habits";
+  import { useHabitsStore } from "@/stores/habits";
   
   export default {
     setup() {
@@ -59,3 +59,25 @@
   };
   </script>
   
+  <style scoped>
+.habit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .habit-form {
+    padding: 0 1rem;
+  }
+
+  button {
+    padding: 0.5rem;
+  }
+}
+</style>
