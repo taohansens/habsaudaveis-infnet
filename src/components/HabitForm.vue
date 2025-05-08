@@ -30,27 +30,31 @@
   </template>
   
   <script>
-  import { addHabit } from "@/services/api";
+  import { useHabitsStore } from "@/store/habits";
   
   export default {
-    data() {
-      return {
-        newHabit: {
-          name: "",
-          category: "",
-          goal: "",
-          frequency: "",
-        },
+    setup() {
+      const habitsStore = useHabitsStore();
+      const newHabit = {
+        name: "",
+        category: "",
+        goal: "",
+        frequency: "",
       };
-    },
-    async addHabit() {
-      try {
-        await addHabit(this.newHabit);
-        this.$emit("habit-added");
-        this.newHabit = { name: "", category: "", goal: "", frequency: "" };
-      } catch (error) {
-        console.error("Erro ao adicionar hábito:", error);
-      }
+  
+      const addHabit = async () => {
+        try {
+          await habitsStore.createHabit(newHabit);
+          Object.keys(newHabit).forEach((key) => (newHabit[key] = ""));
+        } catch (error) {
+          console.error("Erro ao adicionar hábito:", error);
+        }
+      };
+  
+      return {
+        newHabit,
+        addHabit,
+      };
     },
   };
   </script>
