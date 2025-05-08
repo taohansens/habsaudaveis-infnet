@@ -22,14 +22,12 @@ npm install
 npm run dev
 ```
 
-### Compile and Minify for Production
 
+### Json-Server
 ```sh
-npm run build
+npm install -g json-server
 ```
 
-### Lint with [ESLint](https://eslint.org/)
-
 ```sh
-npm run lint
+json-server --watch db.json --port 3000
 ```
