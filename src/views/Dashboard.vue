@@ -1,37 +1,77 @@
 <template>
   <div class="dashboard">
     <div class="dashboard-header">
-      <h1>Dashboard</h1>
-      <button @click="showForm = true" class="add-habit-btn">
+      <h1>Dashboard de Hábitos Saudáveis</h1>
+      <button class="add-button" @click="openModal()">
         <span class="material-icons">add</span>
-        Adicionar Hábito
+        Novo Hábito
       </button>
     </div>
 
-    <HabitList :habits="habits" />
-    <HabitForm v-model="showForm" />
+    <div class="dashboard-content">
+      <div class="main-content">
+        <HabitList />
+        <SimpleCharts :habits="habits" />
+      </div>
+    </div>
+
+    <Modal
+      :modelValue="isModalOpen"
+      @update:modelValue="isModalOpen = $event"
+      title="Novo Hábito"
+    >
+      <HabitForm
+        :modelValue="isModalOpen"
+        :habit="selectedHabit"
+        @close="closeModal"
+      />
+    </Modal>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import HabitList from "@/components/HabitList.vue";
-import HabitForm from "@/components/HabitForm.vue";
-import { useHabitsStore } from "@/stores/habits";
-import { storeToRefs } from "pinia";
+import { ref, onMounted } from 'vue';
+import { useHabitsStore } from '@/stores/habits';
+import { storeToRefs } from 'pinia';
+import HabitList from '@/components/HabitList.vue';
+import HabitForm from '@/components/HabitForm.vue';
+import SimpleCharts from '@/components/SimpleCharts.vue';
+import Modal from '@/components/Modal.vue';
 
 export default {
-  components: { HabitList, HabitForm },
+  name: 'DashboardView',
+  components: {
+    HabitList,
+    HabitForm,
+    SimpleCharts,
+    Modal
+  },
   setup() {
     const habitsStore = useHabitsStore();
     const { habits } = storeToRefs(habitsStore);
-    const showForm = ref(false);
+    const isModalOpen = ref(false);
+    const selectedHabit = ref(null);
 
-    habitsStore.fetchHabits();
+    onMounted(async () => {
+      await habitsStore.fetchHabits();
+    });
+
+    const openModal = () => {
+      selectedHabit.value = null;
+      isModalOpen.value = true;
+    };
+
+    const closeModal = () => {
+      selectedHabit.value = null;
+      isModalOpen.value = false;
+    };
 
     return {
       habits,
-      showForm
+      isModalOpen,
+      selectedHabit,
+      openModal,
+      closeModal
     };
   }
 };
@@ -39,64 +79,78 @@ export default {
 
 <style scoped>
 .dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  padding: 2rem;
 }
 
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-h1 {
-  color: var(--text-color);
+.dashboard-header h1 {
   font-size: 2rem;
-  font-weight: 600;
+  color: #2c3e50;
   margin: 0;
+  font-weight: 600;
 }
 
-.add-habit-btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 8px;
+.add-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
 }
 
-.add-habit-btn:hover {
-  background-color: var(--primary-dark);
+.add-button:hover {
+  background-color: #2563eb;
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
-.add-habit-btn .material-icons {
+.add-button .material-icons {
   font-size: 1.25rem;
 }
 
-@media (max-width: 768px) {
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
   }
 
-  h1 {
+  .dashboard-header h1 {
     font-size: 1.5rem;
     text-align: center;
   }
 
-  .add-habit-btn {
+  .add-button {
     justify-content: center;
   }
 }

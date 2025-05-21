@@ -1,28 +1,3 @@
 {
-  "habits": [
-    {
-      "id": "f6ee",
-      "name": "teste",
-      "category": "Saúde",
-      "goal": "1",
-      "frequency": "Diário",
-      "consecutiveDays": 0,
-      "totalDaysCompleted": 1,
-      "lastCompletedDate": "2025-05-21",
-      "completed": true,
-      "lastUpdated": "2025-05-21T01:54:58.152Z"
-    },
-    {
-      "id": "baa1",
-      "name": "teste",
-      "category": "Saúde",
-      "goal": "1233",
-      "frequency": "Diário",
-      "consecutiveDays": 0,
-      "totalDaysCompleted": 1,
-      "lastCompletedDate": "2025-05-21",
-      "completed": true,
-      "lastUpdated": "2025-05-21T01:54:58.854Z"
-    }
-  ]
+  "habits": []
 }

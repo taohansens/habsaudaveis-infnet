@@ -93,6 +93,10 @@ export const useHabitsStore = defineStore("habits", {
       } finally {
         this.loading = false;
       }
+    },
+    async clearHabits() {
+      this.habits = [];
+      localStorage.removeItem('habits');
     }
   },
   getters: {
