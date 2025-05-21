@@ -131,7 +131,6 @@ export default {
         }
       } catch (error) {
         console.error('Erro ao salvar hábito:', error);
-        // Aqui você pode adicionar uma notificação de erro se desejar
       }
     };
 

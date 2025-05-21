@@ -82,7 +82,6 @@ export default {
           throw new Error('Formato de arquivo inválido');
         }
 
-        // Limpa os hábitos existentes e importa os novos
         await habitsStore.clearHabits();
         for (const habit of data.habits) {
           await habitsStore.addHabit(habit);
@@ -94,7 +93,6 @@ export default {
         alert('Erro ao importar dados. Verifique se o arquivo está no formato correto.');
       }
 
-      // Limpa o input para permitir selecionar o mesmo arquivo novamente
       event.target.value = '';
     };
 
