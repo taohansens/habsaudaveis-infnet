@@ -9,13 +9,19 @@
     </div>
 
     <div class="dashboard-content">
-      <HabitList />
-      <ProgressChart />
+      <div class="main-content">
+        <HabitList />
+        <SimpleCharts :habits="habits" />
+      </div>
     </div>
 
-    <Modal v-model="isModalOpen" @close="closeModal">
+    <Modal
+      :modelValue="isModalOpen"
+      @update:modelValue="isModalOpen = $event"
+      title="Novo Hábito"
+    >
       <HabitForm
-        v-model="isModalOpen"
+        :modelValue="isModalOpen"
         :habit="selectedHabit"
         @close="closeModal"
       />
@@ -26,21 +32,23 @@
 <script>
 import { ref, onMounted } from 'vue';
 import { useHabitsStore } from '@/stores/habits';
-import HabitList from './HabitList.vue';
-import HabitForm from './HabitForm.vue';
-import ProgressChart from './ProgressChart.vue';
-import Modal from './Modal.vue';
+import { storeToRefs } from 'pinia';
+import HabitList from '@/components/HabitList.vue';
+import HabitForm from '@/components/HabitForm.vue';
+import SimpleCharts from '@/components/SimpleCharts.vue';
+import Modal from '@/components/Modal.vue';
 
 export default {
-  name: 'DashboardView',
+  name: 'DashboardComponent',
   components: {
     HabitList,
     HabitForm,
-    ProgressChart,
+    SimpleCharts,
     Modal
   },
   setup() {
     const habitsStore = useHabitsStore();
+    const { habits } = storeToRefs(habitsStore);
     const isModalOpen = ref(false);
     const selectedHabit = ref(null);
 
@@ -48,8 +56,8 @@ export default {
       await habitsStore.fetchHabits();
     });
 
-    const openModal = (habit = null) => {
-      selectedHabit.value = habit;
+    const openModal = () => {
+      selectedHabit.value = null;
       isModalOpen.value = true;
     };
 
@@ -59,6 +67,7 @@ export default {
     };
 
     return {
+      habits,
       isModalOpen,
       selectedHabit,
       openModal,
@@ -115,15 +124,15 @@ export default {
 }
 
 .dashboard-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
 
-@media (max-width: 1024px) {
-  .dashboard-content {
-    grid-template-columns: 1fr;
-  }
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 @media (max-width: 640px) {

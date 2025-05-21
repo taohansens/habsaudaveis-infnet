@@ -9,13 +9,22 @@
         </div>
 
         <div class="habit-details">
-          <p class="habit-goal">🎯 {{ habit.goal }}</p>
-          <p class="habit-frequency">🔄 {{ habit.frequency }}</p>
+          <p class="habit-goal">
+            <span class="material-icons">flag</span>
+            {{ habit.goal }}
+          </p>
+          <p class="habit-frequency">
+            <span class="material-icons">repeat</span>
+            {{ habit.frequency }}
+          </p>
         </div>
 
         <div class="habit-progress">
           <div class="progress-info">
-            <span class="total-days">📅 Total de dias completados: {{ habit.totalDaysCompleted }}</span>
+            <span class="total-days">
+              <span class="material-icons">calendar_today</span>
+              Total de vezes: {{ habit.totalDaysCompleted }}
+            </span>
           </div>
         </div>
 
@@ -26,13 +35,14 @@
             @click="markAsCompleted(habit.id)"
             :title="habit.completed ? 'Concluir outra vez' : 'Marcar como Concluído'"
           >
-            {{ habit.completed ? '✓ Concluído Hoje' : 'Marcar como Concluído' }}
+            <span class="material-icons">{{ habit.completed ? 'check_circle' : 'radio_button_unchecked' }}</span>
+            {{ habit.completed ? 'Concluído Hoje' : 'Marcar como Concluído' }}
           </button>
           <button class="details-button" @click="viewDetails(habit.id)">
-            📋 Detalhes
+            <span class="material-icons">info</span>
           </button>
           <button class="delete-button" @click="removeHabit(habit.id)">
-            🗑️ Remover
+            <span class="material-icons">delete</span>
           </button>
         </div>
       </div>
@@ -128,6 +138,16 @@ export default {
   color: #4b5563;
   margin: 0.5rem 0;
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.habit-goal .material-icons,
+.habit-frequency .material-icons,
+.total-days .material-icons {
+  font-size: 1.25rem;
+  color: #64748b;
 }
 
 .habit-progress {
@@ -162,6 +182,22 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.complete-button .material-icons {
+  font-size: 1.25rem;
+}
+
+.details-button .material-icons {
+  font-size: 1.25rem;
+}
+
+.delete-button .material-icons {
+  font-size: 1.25rem;
 }
 
 .complete-button {

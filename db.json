@@ -1,3 +1,28 @@
 {
-  "habits": []
+  "habits": [
+    {
+      "id": "990b",
+      "name": "Teste",
+      "category": "Produtividade",
+      "goal": "3d",
+      "frequency": "Semanal",
+      "consecutiveDays": 0,
+      "totalDaysCompleted": 5,
+      "lastCompletedDate": "2025-05-21",
+      "completed": true,
+      "lastUpdated": "2025-05-21T02:22:51.007Z"
+    },
+    {
+      "id": "346c",
+      "name": "Teste2",
+      "category": "Aprendizado",
+      "goal": "233",
+      "frequency": "Semanal",
+      "consecutiveDays": 0,
+      "totalDaysCompleted": 7,
+      "lastCompletedDate": "2025-05-21",
+      "completed": true,
+      "lastUpdated": "2025-05-21T02:22:54.689Z"
+    }
+  ]
 }
