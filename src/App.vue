@@ -7,26 +7,26 @@
         </div>
         <nav class="main-nav">
           <router-link to="/" class="nav-link" active-class="active">
-            <span class="nav-icon">📊</span>
+            <span class="material-icons">dashboard</span>
             Dashboard
           </router-link>
           <router-link to="/settings" class="nav-link" active-class="active">
-            <span class="nav-icon">⚙️</span>
+            <span class="material-icons">settings</span>
             Configurações
           </router-link>
-      </nav>
+        </nav>
       </div>
     </header>
 
     <main class="app-main">
       <div class="content-wrapper">
-      <router-view />
+        <router-view />
       </div>
     </main>
 
     <footer class="app-footer">
       <div class="footer-content">
-        <p>&copy; 2024 Hábitos Saudáveis - Desenvolvido com ❤️</p>
+        <p>&copy; 2025 Hábitos Saudáveis - Infnet</p>
       </div>
     </footer>
   </div>
@@ -115,7 +115,7 @@ body {
   color: white;
 }
 
-.nav-icon {
+.nav-link .material-icons {
   font-size: 1.25rem;
 }
 
@@ -141,6 +141,15 @@ body {
   margin: 0 auto;
   padding: 0 2rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.footer-content .material-icons {
+  font-size: 1rem;
+  color: #ef4444;
 }
 
 @media (max-width: 768px) {
@@ -161,7 +170,7 @@ body {
   }
 
   .app-main {
-  padding: 1rem;
+    padding: 1rem;
   }
 
   .footer-content {

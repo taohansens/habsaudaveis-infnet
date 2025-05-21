@@ -6,50 +6,50 @@
   >
     <form @submit.prevent="handleSubmit" class="habit-form">
       <div class="form-content">
-        <div class="form-group">
-          <label for="name">Nome do Hábito</label>
-          <input
-            type="text"
-            id="name"
-            v-model="formData.name"
-            required
-            placeholder="Ex: Beber água"
-            class="form-input"
-          />
-        </div>
+      <div class="form-group">
+        <label for="name">Nome do Hábito</label>
+        <input
+          type="text"
+          id="name"
+          v-model="formData.name"
+          required
+          placeholder="Ex: Beber água"
+          class="form-input"
+        />
+      </div>
 
-        <div class="form-group">
-          <label for="category">Categoria</label>
-          <select id="category" v-model="formData.category" required class="form-input">
-            <option value="">Selecione uma categoria</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Fitness">Fitness</option>
-            <option value="Produtividade">Produtividade</option>
-            <option value="Bem-estar">Bem-estar</option>
-            <option value="Aprendizado">Aprendizado</option>
-          </select>
-        </div>
+      <div class="form-group">
+        <label for="category">Categoria</label>
+        <select id="category" v-model="formData.category" required class="form-input">
+          <option value="">Selecione uma categoria</option>
+          <option value="Saúde">Saúde</option>
+          <option value="Fitness">Fitness</option>
+          <option value="Produtividade">Produtividade</option>
+          <option value="Bem-estar">Bem-estar</option>
+          <option value="Aprendizado">Aprendizado</option>
+        </select>
+      </div>
 
-        <div class="form-group">
-          <label for="goal">Meta</label>
-          <input
-            type="text"
-            id="goal"
-            v-model="formData.goal"
-            required
-            placeholder="Ex: Beber 2L de água por dia"
-            class="form-input"
-          />
-        </div>
+      <div class="form-group">
+        <label for="goal">Meta</label>
+        <input
+          type="text"
+          id="goal"
+          v-model="formData.goal"
+          required
+          placeholder="Ex: Beber 2L de água por dia"
+          class="form-input"
+        />
+      </div>
 
-        <div class="form-group">
-          <label for="frequency">Frequência</label>
-          <select id="frequency" v-model="formData.frequency" required class="form-input">
-            <option value="">Selecione a frequência</option>
-            <option value="Diário">Diário</option>
-            <option value="Semanal">Semanal</option>
-            <option value="Mensal">Mensal</option>
-          </select>
+      <div class="form-group">
+        <label for="frequency">Frequência</label>
+        <select id="frequency" v-model="formData.frequency" required class="form-input">
+          <option value="">Selecione a frequência</option>
+          <option value="Diário">Diário</option>
+          <option value="Semanal">Semanal</option>
+          <option value="Mensal">Mensal</option>
+        </select>
         </div>
       </div>
 
@@ -85,20 +85,18 @@ export default {
       required: true
     }
   },
-  emits: ['close', 'update:modelValue'],
+  emits: ['close', 'update:modelValue', 'habit-added'],
   setup(props, { emit }) {
     const habitsStore = useHabitsStore();
     const isOpen = ref(props.modelValue);
-    const isEditing = ref(props.habit && props.habit.id ? true : false);
+    const isEditing = ref(!!props.habit?.id);
 
     const formData = ref({
       name: '',
       category: '',
       goal: '',
       frequency: '',
-      consecutiveDays: 0,
       totalDaysCompleted: 0,
-      lastCompletedDate: null,
       completed: false
     });
 
@@ -118,17 +116,22 @@ export default {
 
     const handleSubmit = async () => {
       try {
-        if (isEditing.value && props.habit) {
-          await habitsStore.updateHabit(props.habit.id, {
-            ...formData.value,
-            lastUpdated: new Date().toISOString()
-          });
+        let result;
+        if (isEditing.value) {
+          result = await habitsStore.updateHabit(props.habit.id, formData.value);
         } else {
-          await habitsStore.addHabit(formData.value);
+          result = await habitsStore.addHabit(formData.value);
         }
-        handleClose();
+
+        if (result) {
+          emit('habit-added', result);
+          emit('close');
+        } else {
+          throw new Error('Operação não retornou um hábito válido');
+        }
       } catch (error) {
         console.error('Erro ao salvar hábito:', error);
+        // Aqui você pode adicionar uma notificação de erro se desejar
       }
     };
 

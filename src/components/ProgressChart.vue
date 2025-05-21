@@ -1,58 +1,18 @@
 <template>
-  <div class="progress-chart">
-    <h2 class="chart-title">Progresso Geral</h2>
-
-    <div class="chart-stats">
-      <div class="stat-card">
-        <span class="material-icons">trending_up</span>
-        <div class="stat-info">
-          <span class="stat-value">{{ totalDaysCompleted }}</span>
-          <span class="stat-label">Total de Dias Completados</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <span class="material-icons">whatshot</span>
-        <div class="stat-info">
-          <span class="stat-value">{{ maxConsecutiveDays }}</span>
-          <span class="stat-label">Maior Sequência</span>
-        </div>
-      </div>
+  <div class="charts-container">
+    <div v-if="!habits || habits.length === 0" class="empty-charts">
+      <span class="material-icons">bar_chart</span>
+      <h3>Sem dados para exibir</h3>
+      <p>Adicione hábitos para ver suas estatísticas e progresso</p>
     </div>
-
-    <div class="chart-container">
-      <div v-for="habit in habits" :key="habit.id" class="habit-progress-item">
-        <div class="habit-info">
-          <span class="habit-name">{{ habit.name }}</span>
-          <div class="habit-stats">
-            <span class="consecutive-days" :class="getStreakClass(habit.consecutiveDays)">
-              🔥 {{ habit.consecutiveDays }} dias
-            </span>
-            <span class="total-days">📅 {{ habit.totalDaysCompleted }} total</span>
-          </div>
-        </div>
-        <div class="streak-bar-container">
-          <div
-            class="streak-bar"
-            :style="{ width: getStreakPercentage(habit.consecutiveDays) + '%' }"
-            :class="getStreakClass(habit.consecutiveDays)"
-          ></div>
-        </div>
+    <div v-else class="charts-grid">
+      <div class="chart-card">
+        <h3>Distribuição por Categoria</h3>
+        <Pie :data="categoryData" :options="chartOptions" />
       </div>
-    </div>
-
-    <div class="chart-legend">
-      <div class="legend-item">
-        <div class="legend-color streak-beginner"></div>
-        <span>Iniciante (1-3 dias)</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color streak-intermediate"></div>
-        <span>Intermediário (4-7 dias)</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color streak-expert"></div>
-        <span>Expert (8+ dias)</span>
+      <div class="chart-card">
+        <h3>Status dos Hábitos</h3>
+        <Pie :data="completionData" :options="chartOptions" />
       </div>
     </div>
   </div>
@@ -60,218 +20,176 @@
 
 <script>
 import { computed } from 'vue';
-import { useHabitsStore } from '@/stores/habits';
-import { storeToRefs } from 'pinia';
+import { Pie } from 'vue-chartjs';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement
+} from 'chart.js';
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  CategoryScale,
+  LinearScale,
+  BarElement
+);
 
 export default {
-  name: 'ProgressChart',
-  setup() {
-    const habitsStore = useHabitsStore();
-    const { habits } = storeToRefs(habitsStore);
-
-    const totalDaysCompleted = computed(() => {
-      return habits.value.reduce((acc, habit) => acc + habit.totalDaysCompleted, 0);
-    });
-
-    const maxConsecutiveDays = computed(() => {
-      return Math.max(...habits.value.map(habit => habit.consecutiveDays), 0);
-    });
-
-    const getStreakClass = (days) => {
-      if (days >= 8) return 'streak-expert';
-      if (days >= 4) return 'streak-intermediate';
-      return 'streak-beginner';
+  name: 'SimpleCharts',
+  components: {
+    Pie
+  },
+  props: {
+    habits: {
+      type: Array,
+      required: true
+    }
+  },
+  setup(props) {
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          padding: 20
+        }
+      }
     };
 
-    const getStreakPercentage = (days) => {
-      // Máximo de 30 dias para a barra de progresso
-      return Math.min((days / 30) * 100, 100);
-    };
+    const categoryData = computed(() => {
+      const categories = {};
+      props.habits.forEach(habit => {
+        categories[habit.category] = (categories[habit.category] || 0) + 1;
+      });
+
+      return {
+        labels: Object.keys(categories),
+        datasets: [{
+          data: Object.values(categories),
+          backgroundColor: [
+            '#3b82f6',
+            '#10b981',
+            '#f59e0b',
+            '#ef4444',
+            '#8b5cf6'
+          ]
+        }]
+      };
+    });
+
+    const completionData = computed(() => {
+      const completed = props.habits.filter(habit => habit.completed).length;
+      const pending = props.habits.length - completed;
+
+      return {
+        labels: ['Concluídos', 'Pendentes'],
+        datasets: [{
+          data: [completed, pending],
+          backgroundColor: ['#10b981', '#ef4444']
+        }]
+      };
+    });
 
     return {
-      habits,
-      totalDaysCompleted,
-      maxConsecutiveDays,
-      getStreakClass,
-      getStreakPercentage
+      chartOptions,
+      categoryData,
+      completionData
     };
   }
 };
 </script>
 
 <style scoped>
-.progress-chart {
+.charts-container {
+  width: 100%;
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.chart-card {
   background: white;
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 400px;
 }
 
-.chart-title {
+.chart-card h3 {
+  color: #1e293b;
   font-size: 1.25rem;
-  color: #2c3e50;
-  margin: 0 0 1.5rem 0;
-  font-weight: 600;
-}
-
-.chart-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: #f8fafc;
-  border-radius: 8px;
-}
-
-.stat-card .material-icons {
-  font-size: 2rem;
-  color: #3b82f6;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #64748b;
-}
-
-.chart-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   margin-bottom: 1.5rem;
+  font-weight: 600;
 }
 
-.habit-progress-item {
+.empty-charts {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.habit-info {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-}
-
-.habit-name {
-  font-size: 0.875rem;
-  color: #4b5563;
-  font-weight: 500;
-}
-
-.habit-stats {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.consecutive-days,
-.total-days {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.consecutive-days {
-  color: #f97316;
-}
-
-.total-days {
-  color: #64748b;
-}
-
-.streak-bar-container {
-  width: 100%;
-  height: 6px;
-  background-color: #e2e8f0;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.streak-bar {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.streak-beginner {
-  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
-}
-
-.streak-intermediate {
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.streak-expert {
-  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-}
-
-.legend-color.streak-beginner {
-  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
-}
-
-.legend-color.streak-intermediate {
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-}
-
-.legend-color.streak-expert {
-  background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
-}
-
-.chart-legend {
-  display: flex;
   justify-content: center;
-  gap: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 400px;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.empty-charts .material-icons {
+  font-size: 4rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
 }
 
-.legend-color {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+.empty-charts h3 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
 }
 
-.legend-item span {
-  font-size: 0.75rem;
+.empty-charts p {
   color: #64748b;
+  max-width: 300px;
+  line-height: 1.6;
 }
 
 @media (max-width: 640px) {
-  .progress-chart {
-    padding: 1rem;
-  }
-
-  .chart-stats {
+  .charts-grid {
     grid-template-columns: 1fr;
   }
 
-  .chart-legend {
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
+  .chart-card {
+    height: 350px;
+  }
+
+  .empty-charts {
+    padding: 2rem 1rem;
+    height: 350px;
+  }
+
+  .empty-charts .material-icons {
+    font-size: 3rem;
+  }
+
+  .empty-charts h3 {
+    font-size: 1.25rem;
+  }
+
+  .empty-charts p {
+    font-size: 0.95rem;
   }
 }
 </style>

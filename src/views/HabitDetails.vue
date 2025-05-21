@@ -9,12 +9,18 @@
       <div class="habit-info">
         <div class="info-section">
           <h3>Meta</h3>
-          <p class="info-value">🎯 {{ habit.goal }}</p>
+          <p class="info-value">
+            <span class="material-icons">flag</span>
+            {{ habit.goal }}
+          </p>
         </div>
 
         <div class="info-section">
           <h3>Frequência</h3>
-          <p class="info-value">🔄 {{ habit.frequency }}</p>
+          <p class="info-value">
+            <span class="material-icons">repeat</span>
+            {{ habit.frequency }}
+          </p>
         </div>
 
         <div class="info-section">
@@ -22,11 +28,17 @@
           <div class="progress-stats">
             <div class="stat-item">
               <span class="stat-label">Total de dias completados:</span>
-              <span class="stat-value">📅 {{ habit.totalDaysCompleted }}</span>
+              <span class="stat-value">
+                <span class="material-icons">calendar_today</span>
+                {{ habit.totalDaysCompleted }}
+              </span>
             </div>
             <div class="stat-item">
               <span class="stat-label">Última conclusão:</span>
-              <span class="stat-value">📆 {{ formatDate(habit.lastCompletedDate) }}</span>
+              <span class="stat-value">
+                <span class="material-icons">event</span>
+                {{ formatDate(habit.lastUpdated) }}
+              </span>
             </div>
           </div>
         </div>
@@ -34,7 +46,8 @@
 
       <div class="habit-actions">
         <button class="back-button" @click="goBack">
-          ← Voltar
+          <span class="material-icons">arrow_back</span>
+          Voltar
         </button>
         <button
           class="complete-button"
@@ -42,7 +55,8 @@
           @click="markAsCompleted(habit.id)"
           :title="habit.completed ? 'Concluir outra vez' : 'Marcar como Concluído'"
         >
-          {{ habit.completed ? '✓ Concluído Hoje' : 'Marcar como Concluído' }}
+          <span class="material-icons">{{ habit.completed ? 'check_circle' : 'radio_button_unchecked' }}</span>
+          {{ habit.completed ? 'Concluído Hoje' : 'Marcar como Concluído' }}
         </button>
       </div>
     </div>
@@ -50,7 +64,8 @@
       <h2>Hábito não encontrado</h2>
       <p>O hábito que você está procurando não existe ou foi removido.</p>
       <button class="back-button" @click="goBack">
-        ← Voltar para a lista
+        <span class="material-icons">arrow_back</span>
+        Voltar para a lista
       </button>
     </div>
   </div>
@@ -75,8 +90,20 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return 'Nunca';
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-BR');
+      try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return 'Nunca';
+        return date.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (error) {
+        console.error('Erro ao formatar data:', error);
+        return 'Nunca';
+      }
     };
 
     const goBack = () => {
@@ -158,6 +185,14 @@ export default {
   font-size: 1.125rem;
   margin: 0;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.info-value .material-icons {
+  font-size: 1.5rem;
+  color: #64748b;
 }
 
 .progress-stats {
@@ -179,6 +214,14 @@ export default {
 .stat-value {
   color: #2c3e50;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-value .material-icons {
+  font-size: 1.25rem;
+  color: #64748b;
 }
 
 .habit-actions {
@@ -192,10 +235,13 @@ export default {
   border: 1px solid #e2e8f0;
   color: #64748b;
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .back-button:hover {
@@ -203,16 +249,24 @@ export default {
   color: #1e293b;
 }
 
+.back-button .material-icons {
+  font-size: 1.25rem;
+}
+
 .complete-button {
   background-color: #3b82f6;
   color: white;
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .complete-button:hover {
@@ -225,6 +279,10 @@ export default {
 
 .complete-button.completed:hover {
   background-color: #16a34a;
+}
+
+.complete-button .material-icons {
+  font-size: 1.25rem;
 }
 
 .not-found {

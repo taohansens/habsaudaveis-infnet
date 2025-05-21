@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import { getHabits, addHabit as apiAddHabit, deleteHabit as apiDeleteHabit, updateHabit as apiUpdateHabit } from "@/services/api";
 
 export const useHabitsStore = defineStore("habits", {
   state: () => ({
@@ -11,12 +11,13 @@ export const useHabitsStore = defineStore("habits", {
     async fetchHabits() {
       this.loading = true;
       try {
-        const response = await axios.get("http://localhost:3000/habits");
+        const response = await getHabits();
         this.habits = response.data;
         this.error = null;
-      } catch (err) {
-        this.error = "Erro ao carregar hábitos";
-        console.error("Erro ao carregar hábitos:", err);
+      } catch (error) {
+        this.error = "Erro ao buscar hábitos";
+        console.error("Erro ao buscar hábitos:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
@@ -24,19 +25,14 @@ export const useHabitsStore = defineStore("habits", {
     async addHabit(habit) {
       this.loading = true;
       try {
-        const newHabit = {
-          ...habit,
-          totalDaysCompleted: 0,
-          lastCompletedDate: null,
-          completed: false,
-          lastUpdated: new Date().toISOString()
-        };
-        const response = await axios.post("http://localhost:3000/habits", newHabit);
+        const response = await apiAddHabit(habit);
         this.habits.push(response.data);
         this.error = null;
-      } catch (err) {
+        return response.data;
+      } catch (error) {
         this.error = "Erro ao adicionar hábito";
-        console.error("Erro ao adicionar hábito:", err);
+        console.error("Erro ao adicionar hábito:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
@@ -44,12 +40,13 @@ export const useHabitsStore = defineStore("habits", {
     async removeHabit(id) {
       this.loading = true;
       try {
-        await axios.delete(`http://localhost:3000/habits/${id}`);
+        await apiDeleteHabit(id);
         this.habits = this.habits.filter(habit => habit.id !== id);
         this.error = null;
-      } catch (err) {
-        this.error = "Erro ao remover hábito";
-        console.error("Erro ao remover hábito:", err);
+      } catch (error) {
+        this.error = "Erro ao deletar hábito";
+        console.error("Erro ao deletar hábito:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
@@ -58,38 +55,37 @@ export const useHabitsStore = defineStore("habits", {
       this.loading = true;
       try {
         const habit = this.habits.find(h => h.id === id);
-        if (!habit) return;
-
-        const today = new Date().toISOString().split('T')[0];
-
-        const updatedHabit = {
-          ...habit,
-          completed: true,
-          totalDaysCompleted: habit.totalDaysCompleted + 1,
-          lastCompletedDate: today,
-          lastUpdated: new Date().toISOString()
-        };
-
-        await this.updateHabit(id, updatedHabit);
-      } catch (err) {
+        if (habit) {
+          const updatedHabit = {
+            ...habit,
+            completed: !habit.completed,
+            totalDaysCompleted: habit.completed ? habit.totalDaysCompleted - 1 : habit.totalDaysCompleted + 1,
+            lastUpdated: new Date().toISOString()
+          };
+          return await this.updateHabit(id, updatedHabit);
+        }
+      } catch (error) {
         this.error = "Erro ao marcar hábito como concluído";
-        console.error("Erro ao marcar hábito como concluído:", err);
+        console.error("Erro ao marcar hábito como concluído:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
     },
-    async updateHabit(id, updatedHabit) {
+    async updateHabit(id, habit) {
       this.loading = true;
       try {
-        const response = await axios.put(`http://localhost:3000/habits/${id}`, updatedHabit);
-        const index = this.habits.findIndex(habit => habit.id === id);
+        const response = await apiUpdateHabit(id, habit);
+        const index = this.habits.findIndex(h => h.id === id);
         if (index !== -1) {
           this.habits[index] = response.data;
+          this.error = null;
+          return response.data;
         }
-        this.error = null;
-      } catch (err) {
+      } catch (error) {
         this.error = "Erro ao atualizar hábito";
-        console.error("Erro ao atualizar hábito:", err);
+        console.error("Erro ao atualizar hábito:", error);
+        throw error;
       } finally {
         this.loading = false;
       }
